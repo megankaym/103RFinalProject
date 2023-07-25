@@ -1,0 +1,21 @@
+---
+title: "103ProjectNotebook"
+author: "Megan McKenzie"
+date: "2023-07-25"
+output: html_document
+---
+
+1. get data sets
+
+2. link data sets together to make 1 dataframe
+
+3. Generate the following plots using ggplot2 for your covariates of choice:
+○ Histogram for gene expression
+
+
+
+○ Scatterplot for gene expression and continuous covariate
+
+
+
+○ Boxplot of gene expression separated by both categorical covariates
