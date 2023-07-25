@@ -7,15 +7,68 @@ output: html_document
 
 1. get data sets
 
+```{r}
+setwd("../103RFinalProject")
+expressiondf <- read.csv(file = "QBS103_finalProject_geneExpression.csv", header = TRUE)
+metadf <- read.csv(file = "QBS103_finalProject_metadata.csv", header = TRUE)
+```
+
+convert expressiondf to long form to prep for linking
+
+```{r}
+library(tidyverse)
+
+longexpressiondf <- expressiondf %>%
+  pivot_longer(cols = starts_with(c("COVID", "NONCOVID")),
+               names_to = "participant_id",
+               values_to = "gene_expression_data")
+```
+
 2. link data sets together to make 1 dataframe
+
+```{r}
+list_df = list(longexpressiondf, metadf)
+df <- list_df %>% reduce(inner_join, by='participant_id')
+```
 
 3. Generate the following plots using ggplot2 for your covariates of choice:
 ○ Histogram for gene expression
 
+```{r}
+library(ggplot2)
 
+subset <- subset(df, X == 'CLEC3B')
+subset
+
+histogramplot <- ggplot(subset, aes(x = gene_expression_data)) + 
+  geom_histogram(color = "pink", fill = "magenta") +
+  labs(title = "CLEC3B Gene Expression", x = "Gene Expression", y = "Frequency") +
+    theme(plot.title = element_text(colour = "lavenderblush4"))
+histogramplot
+```
 
 ○ Scatterplot for gene expression and continuous covariate
 
+```{r}
+subset <- subset(df, X == 'CLEC3B')
+subset
+
+scatterplot <- ggplot(df, aes(x = gene_expression_data, y = ventilator.free_days)) + 
+    labs(title = "CLEC3B Gene Expression and Ventilator Days", x = "Gene Expression", y = "Ventilator Free Days") +
+    geom_point(color = "purple", alpha = 0.5) +
+    theme(plot.title = element_text(colour = "lavenderblush4"))
+scatterplot
+```
 
 
 ○ Boxplot of gene expression separated by both categorical covariates
+
+```{r}
+boxplot <- ggplot(df, aes(x = gene_expression_data, y = charlson_score, color = mechanical_ventilation)) + 
+  geom_boxplot(fill = c("mistyrose2", "lavender")) +
+  labs(title = "CLEC3B Gene Expression, Charlson Score, and Mechanical Ventilation", x = "Gene Expression", y = "Charlson Score") + 
+  theme(plot.title = element_text(colour = "lavenderblush4"))
+
+boxplot
+```
+
