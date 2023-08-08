@@ -84,6 +84,8 @@ boxplot
     o A list of 1 or more gene names
     o 1 continuous covariate
     o A list of 2 categorical covariates
+    
+  For this function, I decided to plot the data for all the genes of interest (since it is not specified in the assignment) so there are 3 plots no matter how many genes you put in
 
 ```{r}
 make_plot_function <- function(df, genes, contvar, list2catvars){
@@ -104,7 +106,7 @@ make_plot_function <- function(df, genes, contvar, list2catvars){
   # make the 3 plots
   # histogram
   
-  testhist <- ggplot(completedf, aes(x = gene_expression_data)) + # build a histogram plot of gene expression and frequency
+  testhist <- ggplot(completedf, aes(x = unlist(completedf[contvar]))) + # build a histogram plot of gene expression and frequency
     geom_histogram(color = "pink", fill = "magenta") +
     labs(title = paste("Requested ", contvar, " Frequency"), y = "Frequency", x = paste("Requested ", contvar)) +
     theme(plot.title = element_text(colour = "orange1", face = "bold", hjust = 0.5)) # for the plot title
@@ -113,7 +115,7 @@ make_plot_function <- function(df, genes, contvar, list2catvars){
   
   # scatter plot
   
-  scatterplot <- ggplot(completedf, aes(x = gene_expression_data, y = ventilator.free_days)) +  # build a scatter plot of gene expression and ventilator days
+  scatterplot <- ggplot(completedf, aes(x = unlist(completedf[contvar]), y = unlist(completedf[list2catvars[2]]))) +  # build a scatter plot of contvar and second catvar
     labs(title = paste("Requested ", contvar, " and ", list2catvars[2]), x = contvar, y = list2catvars[2]) +
     geom_point(color = "purple", alpha = 0.5) +
     theme(plot.title = element_text(colour = "darkmagenta", face = "bold", hjust = 0.6)) # for the plot title
@@ -122,7 +124,7 @@ make_plot_function <- function(df, genes, contvar, list2catvars){
   
   # box plot
   
-  boxplot <- ggplot(completedf, aes(x = gene_expression_data, y = charlson_binary, color = mechanical_ventilation)) + #create a boxplot of gene expression, charlson score, and mechanical ventilation
+  boxplot <- ggplot(completedf, aes(x = unlist(completedf[contvar]), y = unlist(completedf[list2catvars[1]]), color = unlist(completedf[list2catvars[2]]))) + #create a boxplot of all 3 vars
     geom_boxplot() +
     geom_jitter() +
     labs(title = paste("Plotting ", contvar, list2catvars), x = paste("Requested gene ", contvar), y = paste("Requested", list2catvars[1])) + 
