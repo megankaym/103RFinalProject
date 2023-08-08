@@ -1,24 +1,26 @@
 ---
 title: "103ProjectNotebook"
 author: "Megan McKenzie"
-date: "2023-07-25"
-output: html_document
+date: "2023-08-08"
+output:
+  html_document: default
+  pdf_document: default
 ---
 
-1. get data sets
+1. set up the data frames
 
 ```{r}
-setwd("../103RFinalProject")
-expressiondf <- read.csv(file = "QBS103_finalProject_geneExpression.csv", header = TRUE)
-metadf <- read.csv(file = "QBS103_finalProject_metadata.csv", header = TRUE)
+setwd("../103RFinalProject") # set working directory
+expressiondf <- read.csv(file = "QBS103_finalProject_geneExpression.csv", header = TRUE) # read data from csv file to make df
+metadf <- read.csv(file = "QBS103_finalProject_metadata.csv", header = TRUE) # read data from csv file to make another df
 ```
 
 convert expressiondf to long form to prep for linking
 
 ```{r}
-library(tidyverse)
+library(tidyverse) # I am using Tidyverse in this project
 
-longexpressiondf <- expressiondf %>%
+longexpressiondf <- expressiondf %>% # create a new df that is the long version of our original dataset
   pivot_longer(cols = starts_with(c("COVID", "NONCOVID")),
                names_to = "participant_id",
                values_to = "gene_expression_data")
@@ -27,48 +29,119 @@ longexpressiondf <- expressiondf %>%
 2. link data sets together to make 1 dataframe
 
 ```{r}
-list_df = list(longexpressiondf, metadf)
+list_df = list(longexpressiondf, metadf) # link the two dfs together by using list() then reduce()
 df <- list_df %>% reduce(inner_join, by='participant_id')
 ```
 
-3. Generate the following plots using ggplot2 for your covariates of choice:
-○ Histogram for gene expression
+3. Generate the following 3 plots using ggplot2 for your covariates of choice:
+(a) Histogram for gene expression
 
 ```{r}
-library(ggplot2)
+library(ggplot2) # we are using ggplot2 in this project
 
-subset <- subset(df, X == 'CLEC3B')
+subset <- subset(df, X == 'CLEC3B') # create a subset of the df that includes only the gene of interest
 subset
 
-histogramplot <- ggplot(subset, aes(x = gene_expression_data)) + 
+histogramplot <- ggplot(subset, aes(x = gene_expression_data)) + # build a histogram plot of gene expression and frequency
   geom_histogram(color = "pink", fill = "magenta") +
-  labs(title = "CLEC3B Gene Expression", x = "Gene Expression", y = "Frequency") +
-    theme(plot.title = element_text(colour = "lavenderblush4"))
+  labs(title = expression(paste(italic("CLEC3B"), " Gene Expression")), y = "Frequency", x = expression(paste(italic("CLEC3B"), " Gene Expression"))) +
+    theme(plot.title = element_text(colour = "orange1", face = "bold", hjust = 0.5)) # for the plot title
+
 histogramplot
 ```
 
-○ Scatterplot for gene expression and continuous covariate
+(b) Scatterplot for gene expression and continuous covariate
 
 ```{r}
-subset <- subset(df, X == 'CLEC3B')
-subset
-
-scatterplot <- ggplot(df, aes(x = gene_expression_data, y = ventilator.free_days)) + 
-    labs(title = "CLEC3B Gene Expression and Ventilator Days", x = "Gene Expression", y = "Ventilator Free Days") +
-    geom_point(color = "purple", alpha = 0.5) +
-    theme(plot.title = element_text(colour = "lavenderblush4"))
+scatterplot <- ggplot(subset, aes(x = gene_expression_data, y = ventilator.free_days)) +  # build a scatter plot of gene expression and ventilator days
+  labs(title = expression(paste(italic("CLEC3B"), "Gene Expression and Ventilator Days")), x = expression(paste(italic("CLEC3B"), " Gene Expression"), y = "Frequency"), y = "Ventilator Free Days") +
+  geom_point(color = "purple", alpha = 0.5) +
+  theme(plot.title = element_text(colour = "darkmagenta", face = "bold", hjust = 0.6)) # for the plot title
 scatterplot
 ```
 
 
-○ Boxplot of gene expression separated by both categorical covariates
+(c) Boxplot of gene expression separated by both categorical covariates
 
 ```{r}
-boxplot <- ggplot(df, aes(x = gene_expression_data, y = charlson_score, color = mechanical_ventilation)) + 
-  geom_boxplot(fill = c("mistyrose2", "lavender")) +
-  labs(title = "CLEC3B Gene Expression, Charlson Score, and Mechanical Ventilation", x = "Gene Expression", y = "Charlson Score") + 
-  theme(plot.title = element_text(colour = "lavenderblush4"))
+co <- c("mistyrose2", "lavender") # make my own color palette
 
+subset$charlson_binary <- subset$charlson_score > 5 # make a new column that has T if the Charlson Score is extreme (more than 5) else it is F
+
+boxplot <- ggplot(subset, aes(x = gene_expression_data, y = charlson_binary, color = mechanical_ventilation)) + #create a boxplot of gene expression, charlson score, and mechanical ventilation
+  geom_boxplot() +
+  geom_jitter() +
+  labs(title = expression(paste(italic("CLEC3B"), "Gene Expression, Charlson Score, and Mechanical Ventilation")), x = expression(paste(italic("CLEC3B"), " Gene Expression"), y = "Frequency"), y = "Charlson Binary") + 
+  theme(plot.title = element_text(colour = "orangered", face = "bold", hjust = 0.18, vjust = -2)) + # for the plot title
+  scale_fill_manual(labels=c("<5", ">5")) +
+  coord_flip() + # gene expression should actually be on the y axis
+  scale_y_discrete(labels=c("FALSE" = "Less than 5", "TRUE" = "More than 5\n(Extreme)")) # name the x axis by ><5
 boxplot
 ```
 
+4. develop a function that will create these plots with input as: 
+    o The name of a data frame
+    o A list of 1 or more gene names
+    o 1 continuous covariate
+    o A list of 2 categorical covariates
+
+```{r}
+make_plot_function <- function(df, genes, contvar, list2catvars){
+  # only select data for relevant genes
+  for (gene in range(1:length(genes))){ # for each gene, make a df. then add the df to the list
+    if (gene == 1){
+      initialsubsetdf = subset(df, X == genes[gene])
+      completedf = initialsubsetdf
+      } else {
+        newsubsetdf = subset(df, X == genes[gene])
+        completedf =  merge(completedf, newsubsetdf, all=T)
+      }
+  }
+  
+  # get charlson binary since it could be a cat var (ie I did that so I want to add it to my function). It could be simpler of course with the premade cat var
+  completedf$charlson_binary <- completedf$charlson_score > 5
+  
+  # make the 3 plots
+  # histogram
+  
+  testhist <- ggplot(completedf, aes(x = gene_expression_data)) + # build a histogram plot of gene expression and frequency
+    geom_histogram(color = "pink", fill = "magenta") +
+    labs(title = paste("Requested ", contvar, " Frequency"), y = "Frequency", x = paste("Requested ", contvar)) +
+    theme(plot.title = element_text(colour = "orange1", face = "bold", hjust = 0.5)) # for the plot title
+  
+  testhist
+  
+  # scatter plot
+  
+  scatterplot <- ggplot(completedf, aes(x = gene_expression_data, y = ventilator.free_days)) +  # build a scatter plot of gene expression and ventilator days
+    labs(title = paste("Requested ", contvar, " and ", list2catvars[2]), x = contvar, y = list2catvars[2]) +
+    geom_point(color = "purple", alpha = 0.5) +
+    theme(plot.title = element_text(colour = "darkmagenta", face = "bold", hjust = 0.6)) # for the plot title
+  
+  scatterplot
+  
+  # box plot
+  
+  boxplot <- ggplot(completedf, aes(x = gene_expression_data, y = charlson_binary, color = mechanical_ventilation)) + #create a boxplot of gene expression, charlson score, and mechanical ventilation
+    geom_boxplot() +
+    geom_jitter() +
+    labs(title = paste("Plotting ", contvar, list2catvars), x = paste("Requested gene ", contvar), y = paste("Requested", list2catvars[1])) + 
+    theme(plot.title = element_text(colour = "orangered", hjust = 0.18)) + # for the plot title
+    scale_fill_manual(labels=c("<5", ">5")) +
+    coord_flip() # name the x axis by ><5
+  
+  boxplot
+}
+
+```
+
+```{r}
+make_plot_function(df, c('CLEC3B', 'APOA1'), "gene_expression_data", c("charlson_binary", "mechanical_ventilation"))
+```
+
+Select 2 additional genes to look at and implement a loop to generate your figures using
+the function you created
+
+```{r}
+make_plot_function(df, c("APOM", "CTSG", "DEFA4"), "gene_expression_data", c("charlson_binary", "mechanical_ventilation"))
+```
