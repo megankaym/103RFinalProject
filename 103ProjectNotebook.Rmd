@@ -3,8 +3,8 @@ title: "103ProjectNotebook"
 author: "Megan McKenzie"
 date: "2023-08-08"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 
 1. set up the data frames
@@ -85,7 +85,7 @@ boxplot
     o 1 continuous covariate
     o A list of 2 categorical covariates
     
-  For this function, I decided to plot the data for all the genes of interest (since it is not specified in the assignment) so there are 3 plots no matter how many genes you put in
+  For this function, I decided to plot the data for all the genes of interest (since it is not specified in the assignment) so there are 3 plots no matter how many genes you put in. I make a second function below this that makes 3 plots per gene you put in.
 
 ```{r}
 make_plot_function <- function(df, genes, contvar, list2catvars){
@@ -146,4 +146,45 @@ the function you created
 
 ```{r}
 make_plot_function(df, c("APOM", "CTSG", "DEFA4"), "gene_expression_data", c("charlson_binary", "mechanical_ventilation"))
+```
+
+A function that just makes 3 plots for each separate gene of interest
+```{r}
+my_fun <- function(df, genes, contvar, list2catvars){
+  for (gene in genes){
+    completedf = subset(df, X == gene)
+    completedf$charlson_binary <- completedf$charlson_score > 5
+  
+  # make the 3 plots
+  # histogram
+    testhist <- ggplot(completedf, aes(x = unlist(completedf[contvar]))) + # build a histogram plot of gene expression and frequency
+      geom_histogram(color = "pink", fill = "magenta") +
+      labs(title = paste("Requested ", contvar, " Frequency"), y = "Frequency", x = paste("Requested ", contvar)) +
+      theme(plot.title = element_text(colour = "orange1", face = "bold", hjust = 0.5)) # for the plot title
+    testhist
+  
+  # scatter plot
+    scatterplot <- ggplot(completedf, aes(x = unlist(completedf[contvar]), y = unlist(completedf[list2catvars[2]]))) +  # build a scatter plot of contvar and second catvar
+      labs(title = paste("Requested ", contvar, " and ", list2catvars[2]), x = contvar, y = list2catvars[2]) +
+      geom_point(color = "purple", alpha = 0.5) +
+      theme(plot.title = element_text(colour = "darkmagenta", face = "bold", hjust = 0.6)) # for the plot title
+    scatterplot
+  
+  # box plot
+    boxplot <- ggplot(completedf, aes(x = unlist(completedf[contvar]), y = unlist(completedf[list2catvars[1]]), color = unlist(completedf[list2catvars[2]]))) + #create a boxplot of all 3 vars
+      geom_boxplot() +
+      geom_jitter() +
+      labs(title = substitute(paste(italic(gene), contvar, " with ", list2catvars)), x = contvar, y = list2catvars[1]) + 
+      theme(plot.title = element_text(colour = "orangered", hjust = 0.18)) + # for the plot title
+      scale_fill_manual(labels=c("<5", ">5")) +
+      coord_flip() # name the x axis by ><5
+    print(boxplot)
+    
+  }
+}
+
+```
+
+```{r}
+my_fun(df, c('CLEC3B', 'APOA1'), "gene_expression_data", c("charlson_binary", "mechanical_ventilation"))
 ```

@@ -105,7 +105,7 @@
 
 \title{103ProjectNotebook}
 \author{Megan McKenzie}
-\date{2023-07-25}
+\date{2023-08-08}
 
 \begin{document}
 \maketitle
@@ -114,14 +114,14 @@
 \def\labelenumi{\arabic{enumi}.}
 \tightlist
 \item
-  get data sets
+  set up the data frames
 \end{enumerate}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\FunctionTok{setwd}\NormalTok{(}\StringTok{"../103RFinalProject"}\NormalTok{)}
-\NormalTok{expressiondf }\OtherTok{\textless{}{-}} \FunctionTok{read.csv}\NormalTok{(}\AttributeTok{file =} \StringTok{"QBS103\_finalProject\_geneExpression.csv"}\NormalTok{, }\AttributeTok{header =} \ConstantTok{TRUE}\NormalTok{)}
-\NormalTok{metadf }\OtherTok{\textless{}{-}} \FunctionTok{read.csv}\NormalTok{(}\AttributeTok{file =} \StringTok{"QBS103\_finalProject\_metadata.csv"}\NormalTok{, }\AttributeTok{header =} \ConstantTok{TRUE}\NormalTok{)}
+\FunctionTok{setwd}\NormalTok{(}\StringTok{"../103RFinalProject"}\NormalTok{) }\CommentTok{\# set working directory}
+\NormalTok{expressiondf }\OtherTok{\textless{}{-}} \FunctionTok{read.csv}\NormalTok{(}\AttributeTok{file =} \StringTok{"QBS103\_finalProject\_geneExpression.csv"}\NormalTok{, }\AttributeTok{header =} \ConstantTok{TRUE}\NormalTok{) }\CommentTok{\# read data from csv file to make df}
+\NormalTok{metadf }\OtherTok{\textless{}{-}} \FunctionTok{read.csv}\NormalTok{(}\AttributeTok{file =} \StringTok{"QBS103\_finalProject\_metadata.csv"}\NormalTok{, }\AttributeTok{header =} \ConstantTok{TRUE}\NormalTok{) }\CommentTok{\# read data from csv file to make another df}
 \end{Highlighting}
 \end{Shaded}
 
@@ -129,7 +129,7 @@ convert expressiondf to long form to prep for linking
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\FunctionTok{library}\NormalTok{(tidyverse)}
+\FunctionTok{library}\NormalTok{(tidyverse) }\CommentTok{\# I am using Tidyverse in this project}
 \end{Highlighting}
 \end{Shaded}
 
@@ -148,7 +148,7 @@ convert expressiondf to long form to prep for linking
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{longexpressiondf }\OtherTok{\textless{}{-}}\NormalTok{ expressiondf }\SpecialCharTok{\%\textgreater{}\%}
+\NormalTok{longexpressiondf }\OtherTok{\textless{}{-}}\NormalTok{ expressiondf }\SpecialCharTok{\%\textgreater{}\%} \CommentTok{\# create a new df that is the long version of our original dataset}
   \FunctionTok{pivot\_longer}\NormalTok{(}\AttributeTok{cols =} \FunctionTok{starts\_with}\NormalTok{(}\FunctionTok{c}\NormalTok{(}\StringTok{"COVID"}\NormalTok{, }\StringTok{"NONCOVID"}\NormalTok{)),}
                \AttributeTok{names\_to =} \StringTok{"participant\_id"}\NormalTok{,}
                \AttributeTok{values\_to =} \StringTok{"gene\_expression\_data"}\NormalTok{)}
@@ -165,7 +165,7 @@ convert expressiondf to long form to prep for linking
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{list\_df }\OtherTok{=} \FunctionTok{list}\NormalTok{(longexpressiondf, metadf)}
+\NormalTok{list\_df }\OtherTok{=} \FunctionTok{list}\NormalTok{(longexpressiondf, metadf) }\CommentTok{\# link the two dfs together by using list() then reduce()}
 \NormalTok{df }\OtherTok{\textless{}{-}}\NormalTok{ list\_df }\SpecialCharTok{\%\textgreater{}\%} \FunctionTok{reduce}\NormalTok{(inner\_join, }\AttributeTok{by=}\StringTok{\textquotesingle{}participant\_id\textquotesingle{}}\NormalTok{)}
 \end{Highlighting}
 \end{Shaded}
@@ -175,15 +175,22 @@ convert expressiondf to long form to prep for linking
 \setcounter{enumi}{2}
 \tightlist
 \item
-  Generate the following plots using ggplot2 for your covariates of
-  choice: ○ Histogram for gene expression
+  Generate the following 3 plots using ggplot2 for your covariates of
+  choice:
+\end{enumerate}
+
+\begin{enumerate}
+\def\labelenumi{(\alph{enumi})}
+\tightlist
+\item
+  Histogram for gene expression
 \end{enumerate}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\FunctionTok{library}\NormalTok{(ggplot2)}
+\FunctionTok{library}\NormalTok{(ggplot2) }\CommentTok{\# we are using ggplot2 in this project}
 
-\NormalTok{subset }\OtherTok{\textless{}{-}} \FunctionTok{subset}\NormalTok{(df, X }\SpecialCharTok{==} \StringTok{\textquotesingle{}CLEC3B\textquotesingle{}}\NormalTok{)}
+\NormalTok{subset }\OtherTok{\textless{}{-}} \FunctionTok{subset}\NormalTok{(df, X }\SpecialCharTok{==} \StringTok{\textquotesingle{}CLEC3B\textquotesingle{}}\NormalTok{) }\CommentTok{\# create a subset of the df that includes only the gene of interest}
 \NormalTok{subset}
 \end{Highlighting}
 \end{Shaded}
@@ -213,10 +220,11 @@ convert expressiondf to long form to prep for linking
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{histogramplot }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(subset, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ gene\_expression\_data)) }\SpecialCharTok{+} 
+\NormalTok{histogramplot }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(subset, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ gene\_expression\_data)) }\SpecialCharTok{+} \CommentTok{\# build a histogram plot of gene expression and frequency}
   \FunctionTok{geom\_histogram}\NormalTok{(}\AttributeTok{color =} \StringTok{"pink"}\NormalTok{, }\AttributeTok{fill =} \StringTok{"magenta"}\NormalTok{) }\SpecialCharTok{+}
-  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"CLEC3B Gene Expression"}\NormalTok{, }\AttributeTok{x =} \StringTok{"Gene Expression"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Frequency"}\NormalTok{) }\SpecialCharTok{+}
-    \FunctionTok{theme}\NormalTok{(}\AttributeTok{plot.title =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{colour =} \StringTok{"lavenderblush4"}\NormalTok{))}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \FunctionTok{expression}\NormalTok{(}\FunctionTok{paste}\NormalTok{(}\FunctionTok{italic}\NormalTok{(}\StringTok{"CLEC3B"}\NormalTok{), }\StringTok{" Gene Expression"}\NormalTok{)), }\AttributeTok{y =} \StringTok{"Frequency"}\NormalTok{, }\AttributeTok{x =} \FunctionTok{expression}\NormalTok{(}\FunctionTok{paste}\NormalTok{(}\FunctionTok{italic}\NormalTok{(}\StringTok{"CLEC3B"}\NormalTok{), }\StringTok{" Gene Expression"}\NormalTok{))) }\SpecialCharTok{+}
+    \FunctionTok{theme}\NormalTok{(}\AttributeTok{plot.title =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{colour =} \StringTok{"orange1"}\NormalTok{, }\AttributeTok{face =} \StringTok{"bold"}\NormalTok{, }\AttributeTok{hjust =} \FloatTok{0.5}\NormalTok{)) }\CommentTok{\# for the plot title}
+
 \NormalTok{histogramplot}
 \end{Highlighting}
 \end{Shaded}
@@ -227,63 +235,136 @@ convert expressiondf to long form to prep for linking
 
 \includegraphics{103ProjectNotebook_files/figure-latex/unnamed-chunk-4-1.pdf}
 
-○ Scatterplot for gene expression and continuous covariate
+\begin{enumerate}
+\def\labelenumi{(\alph{enumi})}
+\setcounter{enumi}{1}
+\tightlist
+\item
+  Scatterplot for gene expression and continuous covariate
+\end{enumerate}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{subset }\OtherTok{\textless{}{-}} \FunctionTok{subset}\NormalTok{(df, X }\SpecialCharTok{==} \StringTok{\textquotesingle{}CLEC3B\textquotesingle{}}\NormalTok{)}
-\NormalTok{subset}
-\end{Highlighting}
-\end{Shaded}
-
-\begin{verbatim}
-## # A tibble: 125 x 27
-##    X      participant_id             gene_expression_data geo_accession status  
-##    <chr>  <chr>                                     <dbl> <chr>         <chr>   
-##  1 CLEC3B COVID_01_39y_male_NonICU                   1.41 GSM4753021    Public ~
-##  2 CLEC3B COVID_02_63y_male_NonICU                   0.79 GSM4753022    Public ~
-##  3 CLEC3B COVID_03_33y_male_NonICU                   0.5  GSM4753023    Public ~
-##  4 CLEC3B COVID_04_49y_male_NonICU                   0.7  GSM4753024    Public ~
-##  5 CLEC3B COVID_05_49y_male_NonICU                   0.1  GSM4753025    Public ~
-##  6 CLEC3B COVID_07_38y_female_NonICU                 0.33 GSM4753027    Public ~
-##  7 CLEC3B COVID_08_78y_male_ICU                      0.61 GSM4753028    Public ~
-##  8 CLEC3B COVID_09_64y_female_ICU                    0.77 GSM4753029    Public ~
-##  9 CLEC3B COVID_10_62y_male_ICU                      1.69 GSM4753030    Public ~
-## 10 CLEC3B COVID_11_52y_female_NonICU                 0.2  GSM4753031    Public ~
-## # i 115 more rows
-## # i 22 more variables: X.Sample_submission_date <chr>, last_update_date <chr>,
-## #   type <chr>, channel_count <int>, source_name_ch1 <chr>, organism_ch1 <chr>,
-## #   disease_status <chr>, age <chr>, sex <chr>, icu_status <chr>,
-## #   apacheii <chr>, charlson_score <int>, mechanical_ventilation <chr>,
-## #   ventilator.free_days <int>, hospital.free_days_post_45_day_followup <int>,
-## #   ferritin.ng.ml. <chr>, crp.mg.l. <chr>, ddimer.mg.l_feu. <chr>, ...
-\end{verbatim}
-
-\begin{Shaded}
-\begin{Highlighting}[]
-\NormalTok{scatterplot }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(df, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ gene\_expression\_data, }\AttributeTok{y =}\NormalTok{ ventilator.free\_days)) }\SpecialCharTok{+} 
-    \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"CLEC3B Gene Expression and Ventilator Days"}\NormalTok{, }\AttributeTok{x =} \StringTok{"Gene Expression"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Ventilator Free Days"}\NormalTok{) }\SpecialCharTok{+}
-    \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{color =} \StringTok{"purple"}\NormalTok{, }\AttributeTok{alpha =} \FloatTok{0.5}\NormalTok{) }\SpecialCharTok{+}
-    \FunctionTok{theme}\NormalTok{(}\AttributeTok{plot.title =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{colour =} \StringTok{"lavenderblush4"}\NormalTok{))}
+\NormalTok{scatterplot }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(subset, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ gene\_expression\_data, }\AttributeTok{y =}\NormalTok{ ventilator.free\_days)) }\SpecialCharTok{+}  \CommentTok{\# build a scatter plot of gene expression and ventilator days}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \FunctionTok{expression}\NormalTok{(}\FunctionTok{paste}\NormalTok{(}\FunctionTok{italic}\NormalTok{(}\StringTok{"CLEC3B"}\NormalTok{), }\StringTok{"Gene Expression and Ventilator Days"}\NormalTok{)), }\AttributeTok{x =} \FunctionTok{expression}\NormalTok{(}\FunctionTok{paste}\NormalTok{(}\FunctionTok{italic}\NormalTok{(}\StringTok{"CLEC3B"}\NormalTok{), }\StringTok{" Gene Expression"}\NormalTok{), }\AttributeTok{y =} \StringTok{"Frequency"}\NormalTok{), }\AttributeTok{y =} \StringTok{"Ventilator Free Days"}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{color =} \StringTok{"purple"}\NormalTok{, }\AttributeTok{alpha =} \FloatTok{0.5}\NormalTok{) }\SpecialCharTok{+}
+  \FunctionTok{theme}\NormalTok{(}\AttributeTok{plot.title =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{colour =} \StringTok{"darkmagenta"}\NormalTok{, }\AttributeTok{face =} \StringTok{"bold"}\NormalTok{, }\AttributeTok{hjust =} \FloatTok{0.6}\NormalTok{)) }\CommentTok{\# for the plot title}
 \NormalTok{scatterplot}
 \end{Highlighting}
 \end{Shaded}
 
 \includegraphics{103ProjectNotebook_files/figure-latex/unnamed-chunk-5-1.pdf}
 
-○ Boxplot of gene expression separated by both categorical covariates
+\begin{enumerate}
+\def\labelenumi{(\alph{enumi})}
+\setcounter{enumi}{2}
+\tightlist
+\item
+  Boxplot of gene expression separated by both categorical covariates
+\end{enumerate}
 
 \begin{Shaded}
 \begin{Highlighting}[]
-\NormalTok{boxplot }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(df, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ gene\_expression\_data, }\AttributeTok{y =}\NormalTok{ charlson\_score, }\AttributeTok{color =}\NormalTok{ mechanical\_ventilation)) }\SpecialCharTok{+} 
-  \FunctionTok{geom\_boxplot}\NormalTok{(}\AttributeTok{fill =} \FunctionTok{c}\NormalTok{(}\StringTok{"mistyrose2"}\NormalTok{, }\StringTok{"lavender"}\NormalTok{)) }\SpecialCharTok{+}
-  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \StringTok{"CLEC3B Gene Expression, Charlson Score, and Mechanical Ventilation"}\NormalTok{, }\AttributeTok{x =} \StringTok{"Gene Expression"}\NormalTok{, }\AttributeTok{y =} \StringTok{"Charlson Score"}\NormalTok{) }\SpecialCharTok{+} 
-  \FunctionTok{theme}\NormalTok{(}\AttributeTok{plot.title =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{colour =} \StringTok{"lavenderblush4"}\NormalTok{))}
+\NormalTok{co }\OtherTok{\textless{}{-}} \FunctionTok{c}\NormalTok{(}\StringTok{"mistyrose2"}\NormalTok{, }\StringTok{"lavender"}\NormalTok{) }\CommentTok{\# make my own color palette}
 
+\NormalTok{subset}\SpecialCharTok{$}\NormalTok{charlson\_binary }\OtherTok{\textless{}{-}}\NormalTok{ subset}\SpecialCharTok{$}\NormalTok{charlson\_score }\SpecialCharTok{\textgreater{}} \DecValTok{5} \CommentTok{\# make a new column that has T if the Charlson Score is extreme (more than 5) else it is F}
+
+\NormalTok{boxplot }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(subset, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =}\NormalTok{ gene\_expression\_data, }\AttributeTok{y =}\NormalTok{ charlson\_binary, }\AttributeTok{color =}\NormalTok{ mechanical\_ventilation)) }\SpecialCharTok{+} \CommentTok{\#create a boxplot of gene expression, charlson score, and mechanical ventilation}
+  \FunctionTok{geom\_boxplot}\NormalTok{() }\SpecialCharTok{+}
+  \FunctionTok{geom\_jitter}\NormalTok{() }\SpecialCharTok{+}
+  \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \FunctionTok{expression}\NormalTok{(}\FunctionTok{paste}\NormalTok{(}\FunctionTok{italic}\NormalTok{(}\StringTok{"CLEC3B"}\NormalTok{), }\StringTok{"Gene Expression, Charlson Score, and Mechanical Ventilation"}\NormalTok{)), }\AttributeTok{x =} \FunctionTok{expression}\NormalTok{(}\FunctionTok{paste}\NormalTok{(}\FunctionTok{italic}\NormalTok{(}\StringTok{"CLEC3B"}\NormalTok{), }\StringTok{" Gene Expression"}\NormalTok{), }\AttributeTok{y =} \StringTok{"Frequency"}\NormalTok{), }\AttributeTok{y =} \StringTok{"Charlson Binary"}\NormalTok{) }\SpecialCharTok{+} 
+  \FunctionTok{theme}\NormalTok{(}\AttributeTok{plot.title =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{colour =} \StringTok{"orangered"}\NormalTok{, }\AttributeTok{face =} \StringTok{"bold"}\NormalTok{, }\AttributeTok{hjust =} \FloatTok{0.18}\NormalTok{, }\AttributeTok{vjust =} \SpecialCharTok{{-}}\DecValTok{2}\NormalTok{)) }\SpecialCharTok{+} \CommentTok{\# for the plot title}
+  \FunctionTok{scale\_fill\_manual}\NormalTok{(}\AttributeTok{labels=}\FunctionTok{c}\NormalTok{(}\StringTok{"\textless{}5"}\NormalTok{, }\StringTok{"\textgreater{}5"}\NormalTok{)) }\SpecialCharTok{+}
+  \FunctionTok{coord\_flip}\NormalTok{() }\SpecialCharTok{+} \CommentTok{\# gene expression should actually be on the y axis}
+  \FunctionTok{scale\_y\_discrete}\NormalTok{(}\AttributeTok{labels=}\FunctionTok{c}\NormalTok{(}\StringTok{"FALSE"} \OtherTok{=} \StringTok{"Less than 5"}\NormalTok{, }\StringTok{"TRUE"} \OtherTok{=} \StringTok{"More than 5}\SpecialCharTok{\textbackslash{}n}\StringTok{(Extreme)"}\NormalTok{)) }\CommentTok{\# name the x axis by \textgreater{}\textless{}5}
 \NormalTok{boxplot}
 \end{Highlighting}
 \end{Shaded}
 
 \includegraphics{103ProjectNotebook_files/figure-latex/unnamed-chunk-6-1.pdf}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{3}
+\tightlist
+\item
+  develop a function that will create these plots with input as: o The
+  name of a data frame o A list of 1 or more gene names o 1 continuous
+  covariate o A list of 2 categorical covariates
+\end{enumerate}
+
+For this function, I decided to plot the data for all the genes of
+interest (since it is not specified in the assignment) so there are 3
+plots no matter how many genes you put in
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{make\_plot\_function }\OtherTok{\textless{}{-}} \ControlFlowTok{function}\NormalTok{(df, genes, contvar, list2catvars)\{}
+  \CommentTok{\# only select data for relevant genes}
+  \ControlFlowTok{for}\NormalTok{ (gene }\ControlFlowTok{in} \FunctionTok{range}\NormalTok{(}\DecValTok{1}\SpecialCharTok{:}\FunctionTok{length}\NormalTok{(genes)))\{ }\CommentTok{\# for each gene, make a df. then add the df to the list}
+    \ControlFlowTok{if}\NormalTok{ (gene }\SpecialCharTok{==} \DecValTok{1}\NormalTok{)\{}
+\NormalTok{      initialsubsetdf }\OtherTok{=} \FunctionTok{subset}\NormalTok{(df, X }\SpecialCharTok{==}\NormalTok{ genes[gene])}
+\NormalTok{      completedf }\OtherTok{=}\NormalTok{ initialsubsetdf}
+\NormalTok{      \} }\ControlFlowTok{else}\NormalTok{ \{}
+\NormalTok{        newsubsetdf }\OtherTok{=} \FunctionTok{subset}\NormalTok{(df, X }\SpecialCharTok{==}\NormalTok{ genes[gene])}
+\NormalTok{        completedf }\OtherTok{=}  \FunctionTok{merge}\NormalTok{(completedf, newsubsetdf, }\AttributeTok{all=}\NormalTok{T)}
+\NormalTok{      \}}
+\NormalTok{  \}}
+  
+  \CommentTok{\# get charlson binary since it could be a cat var (ie I did that so I want to add it to my function). It could be simpler of course with the premade cat var}
+\NormalTok{  completedf}\SpecialCharTok{$}\NormalTok{charlson\_binary }\OtherTok{\textless{}{-}}\NormalTok{ completedf}\SpecialCharTok{$}\NormalTok{charlson\_score }\SpecialCharTok{\textgreater{}} \DecValTok{5}
+  
+  \CommentTok{\# make the 3 plots}
+  \CommentTok{\# histogram}
+  
+\NormalTok{  testhist }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(completedf, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =} \FunctionTok{unlist}\NormalTok{(completedf[contvar]))) }\SpecialCharTok{+} \CommentTok{\# build a histogram plot of gene expression and frequency}
+    \FunctionTok{geom\_histogram}\NormalTok{(}\AttributeTok{color =} \StringTok{"pink"}\NormalTok{, }\AttributeTok{fill =} \StringTok{"magenta"}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \FunctionTok{paste}\NormalTok{(}\StringTok{"Requested "}\NormalTok{, contvar, }\StringTok{" Frequency"}\NormalTok{), }\AttributeTok{y =} \StringTok{"Frequency"}\NormalTok{, }\AttributeTok{x =} \FunctionTok{paste}\NormalTok{(}\StringTok{"Requested "}\NormalTok{, contvar)) }\SpecialCharTok{+}
+    \FunctionTok{theme}\NormalTok{(}\AttributeTok{plot.title =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{colour =} \StringTok{"orange1"}\NormalTok{, }\AttributeTok{face =} \StringTok{"bold"}\NormalTok{, }\AttributeTok{hjust =} \FloatTok{0.5}\NormalTok{)) }\CommentTok{\# for the plot title}
+  
+\NormalTok{  testhist}
+  
+  \CommentTok{\# scatter plot}
+  
+\NormalTok{  scatterplot }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(completedf, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =} \FunctionTok{unlist}\NormalTok{(completedf[contvar]), }\AttributeTok{y =} \FunctionTok{unlist}\NormalTok{(completedf[list2catvars[}\DecValTok{2}\NormalTok{]]))) }\SpecialCharTok{+}  \CommentTok{\# build a scatter plot of contvar and second catvar}
+    \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \FunctionTok{paste}\NormalTok{(}\StringTok{"Requested "}\NormalTok{, contvar, }\StringTok{" and "}\NormalTok{, list2catvars[}\DecValTok{2}\NormalTok{]), }\AttributeTok{x =}\NormalTok{ contvar, }\AttributeTok{y =}\NormalTok{ list2catvars[}\DecValTok{2}\NormalTok{]) }\SpecialCharTok{+}
+    \FunctionTok{geom\_point}\NormalTok{(}\AttributeTok{color =} \StringTok{"purple"}\NormalTok{, }\AttributeTok{alpha =} \FloatTok{0.5}\NormalTok{) }\SpecialCharTok{+}
+    \FunctionTok{theme}\NormalTok{(}\AttributeTok{plot.title =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{colour =} \StringTok{"darkmagenta"}\NormalTok{, }\AttributeTok{face =} \StringTok{"bold"}\NormalTok{, }\AttributeTok{hjust =} \FloatTok{0.6}\NormalTok{)) }\CommentTok{\# for the plot title}
+  
+\NormalTok{  scatterplot}
+  
+  \CommentTok{\# box plot}
+  
+\NormalTok{  boxplot }\OtherTok{\textless{}{-}} \FunctionTok{ggplot}\NormalTok{(completedf, }\FunctionTok{aes}\NormalTok{(}\AttributeTok{x =} \FunctionTok{unlist}\NormalTok{(completedf[contvar]), }\AttributeTok{y =} \FunctionTok{unlist}\NormalTok{(completedf[list2catvars[}\DecValTok{1}\NormalTok{]]), }\AttributeTok{color =} \FunctionTok{unlist}\NormalTok{(completedf[list2catvars[}\DecValTok{2}\NormalTok{]]))) }\SpecialCharTok{+} \CommentTok{\#create a boxplot of all 3 vars}
+    \FunctionTok{geom\_boxplot}\NormalTok{() }\SpecialCharTok{+}
+    \FunctionTok{geom\_jitter}\NormalTok{() }\SpecialCharTok{+}
+    \FunctionTok{labs}\NormalTok{(}\AttributeTok{title =} \FunctionTok{paste}\NormalTok{(}\StringTok{"Plotting "}\NormalTok{, contvar, list2catvars), }\AttributeTok{x =} \FunctionTok{paste}\NormalTok{(}\StringTok{"Requested gene "}\NormalTok{, contvar), }\AttributeTok{y =} \FunctionTok{paste}\NormalTok{(}\StringTok{"Requested"}\NormalTok{, list2catvars[}\DecValTok{1}\NormalTok{])) }\SpecialCharTok{+} 
+    \FunctionTok{theme}\NormalTok{(}\AttributeTok{plot.title =} \FunctionTok{element\_text}\NormalTok{(}\AttributeTok{colour =} \StringTok{"orangered"}\NormalTok{, }\AttributeTok{hjust =} \FloatTok{0.18}\NormalTok{)) }\SpecialCharTok{+} \CommentTok{\# for the plot title}
+    \FunctionTok{scale\_fill\_manual}\NormalTok{(}\AttributeTok{labels=}\FunctionTok{c}\NormalTok{(}\StringTok{"\textless{}5"}\NormalTok{, }\StringTok{"\textgreater{}5"}\NormalTok{)) }\SpecialCharTok{+}
+    \FunctionTok{coord\_flip}\NormalTok{() }\CommentTok{\# name the x axis by \textgreater{}\textless{}5}
+  
+\NormalTok{  boxplot}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{make\_plot\_function}\NormalTok{(df, }\FunctionTok{c}\NormalTok{(}\StringTok{\textquotesingle{}CLEC3B\textquotesingle{}}\NormalTok{, }\StringTok{\textquotesingle{}APOA1\textquotesingle{}}\NormalTok{), }\StringTok{"gene\_expression\_data"}\NormalTok{, }\FunctionTok{c}\NormalTok{(}\StringTok{"charlson\_binary"}\NormalTok{, }\StringTok{"mechanical\_ventilation"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{103ProjectNotebook_files/figure-latex/unnamed-chunk-8-1.pdf}
+
+Select 2 additional genes to look at and implement a loop to generate
+your figures using the function you created
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\FunctionTok{make\_plot\_function}\NormalTok{(df, }\FunctionTok{c}\NormalTok{(}\StringTok{"APOM"}\NormalTok{, }\StringTok{"CTSG"}\NormalTok{, }\StringTok{"DEFA4"}\NormalTok{), }\StringTok{"gene\_expression\_data"}\NormalTok{, }\FunctionTok{c}\NormalTok{(}\StringTok{"charlson\_binary"}\NormalTok{, }\StringTok{"mechanical\_ventilation"}\NormalTok{))}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{103ProjectNotebook_files/figure-latex/unnamed-chunk-9-1.pdf}
 
 \end{document}

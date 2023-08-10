@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2023.2.10)  25 JUL 2023 09:50
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2023.2.10)  8 AUG 2023 13:45
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -431,11 +431,11 @@ Type  H <return>  for immediate help.
 l.147 \end{verbatim}
                      
 Here is how much of TeX's memory you used:
- 11199 strings out of 477989
- 176973 string characters out of 5838627
- 1852346 words of memory out of 5000000
- 31230 multiletter control sequences out of 15000+600000
- 533870 words of font info for 52 fonts, out of 8000000 for 9000
+ 11201 strings out of 477989
+ 176998 string characters out of 5838627
+ 1853346 words of memory out of 5000000
+ 31231 multiletter control sequences out of 15000+600000
+ 534189 words of font info for 53 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  89i,6n,90p,361b,382s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
