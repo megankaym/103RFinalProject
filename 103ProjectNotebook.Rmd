@@ -26,6 +26,8 @@ convert expressiondf to long form to prep for linking
 
 ```{r}
 library(tidyverse) # I am using Tidyverse in this project
+library(ggplot2)
+library(ggExtra) # and ggExtra and ggplot2
 
 longexpressiondf <- expressiondf %>% # create a new df that is the long version of our original dataset
   pivot_longer(cols = starts_with(c("COVID", "NONCOVID")),
@@ -210,7 +212,7 @@ continuous: gene expression, ventilator.free_days, age
 categorical: charlson binary, mechanical ventilation, sex
 
 ```{r}
-install.packages("kableExtra") # we will work with the kableExtra package
+#install.packages("kableExtra") # we will work with the kableExtra package
 ```
 
 Code adapted from class: https://canvas.dartmouth.edu/courses/59947
@@ -309,17 +311,126 @@ buildTableOne(subset, c("charlson_binary", "mechanical_ventilation", "sex"), c("
 
 Going through the documentation for ggplot2, generate a plot type that we did not previously discuss in class that describes your data in a new and unique way
 
-I will make a violin plot since we haven't made one in class yet
+I will make a Marginal Histogram plot since we haven't made one in class yet:
 
 ```{r}
-violin_plot <- ggplot(subset, aes(x = gene_expression_data, y = charlson_binary, fill = mechanical_ventilation)) + # pick variables to go in the plot
-  geom_violin() + # make it a violin plot
-  labs(title="CLEC3B Gene Expression vs. Charlson Binary", x="Gene Expression", y="Charlson Binary", fill = "Mechnical Ventilation") + # labels
-  scale_y_discrete(breaks = c(FALSE, TRUE), labels = c("<5", ">5")) + # I want the values to be reflected in the text
-  scale_fill_manual(values = c("blue", "orange")) + # colors for the mechanical ventilation
-  theme_minimal() # theme
+install.packages("ggExtra") # uses ggExtra
+```
 
-violin_plot
+```{r}
+library(ggplot2)
+library(ggExtra)
+my_theme <- theme( # make a theme for the title so it is easy to see
+  plot.title = element_text(lineheight = 0.8, hjust = 0.5, vjust = -3, size = 6)
+)
+
+g <- ggplot(subset, aes(age, gene_expression_data)) + # I picked age and gene expression as the variables
+  geom_count() + 
+  geom_smooth(method="lm") +
+  ylab("CLEC3B Gene Expression") +
+  xlab("Age") +
+  ggtitle(substitute(paste("Scatterplot with Marginal Histograms for", italic("CLEC3B"), "Gene Expression and Age"))) +
+  my_theme
+
+plot1 <- ggMarginal(g, type = "histogram", fill="lightblue")
+plot1
+```
+
+
+
+
+
+
+
+
+
+
+###################################################################################
+heat map stuff
+
+Two categorical variables for the 10 genes: I selected icu status and sex
+
+step 1. subset df to just 10 genes
+
+```{r}
+#tengenes <- expressiondf[1:10, ] # select just 10 genes from the expression/original dataset
+#ten_genes <- data.frame(t(tengenes)) # transpose
+#colnames(ten_genes) <- tengenes$X # make column names the genes
+#ten_genes <- ten_genes[-1, ] # remove the first row because we already have the gene names as the column names
+#ten_genes
+```
+
+```{r}
+tengenes <- expressiondf[1:10, ] # select just 10 genes from the expression/original dataset
+ten_genes <- as.data.frame(t(tengenes)) # transpose and remove the first row
+names(ten_genes) <- ten_genes[1,]
+ten_genes <- ten_genes[-1,]
+#colnames(ten_genes) <- tengenes$X[-1] # make column names the gene names
+```
+
+step 2: c bind ten_genes with metadf
+
+```{r}
+tenmeta <- cbind(ten_genes, metadf)
+tenmeta
+```
+
+scale, make numeric, clean data
+
+```{r}
+library(RColorBrewer)
+ten_genes <- as.data.frame(sapply(ten_genes, as.numeric))
+scaledten_genes <- scale(ten_genes) # scale just the 10 genes dataframe
+tenmeta$icu_status <- as.factor(tenmeta$icu_status)
+tenmeta$sex <- as.factor(tenmeta$sex)
+
+brewercolors <- brewer.pal(8, "Spectral")
+set.seed(1)
+
+annotations <- data.frame(row.names = rownames(tenmeta), "ICU" = tenmeta$icu_status, "Sex" = tenmeta$sex)
+```
+
+get rid of nas
+
+```{r}
+ten_genes <- na.omit(ten_genes)
+na_matrix <- is.na(ten_genes)
+any_na <- any(na_matrix)
+if (any_na) {
+  print("There are NA values in the dataframe.")
+} else {
+  print("There are no NA values in the dataframe.")
+}
+```
+
+step 3: make heatmap
+
+``` {r}
+library(pheatmap) # need this package for heat map
+heatmap <- pheatmap(ten_genes, clustering_distance_cols = 'euclidean', clustering_distance_rows = 'euclidean')
+set.seed(1)
+
+# make data
+annotationData <- data.frame(row.names = rownames(tenmeta),
+                             'ICU' = tenmeta$icu_status,
+                             'Sex' = tenmeta$sex)
+# make color palette
+annotationColors <- list("ICU" = c(' no' = 'magenta4',
+                                 ' yes' = 'gold'),
+                         "Sex" = c('female' = 'orange2',
+                                 'male' = 'firebrick'))
+
+pheatmap(scale(ten_genes),
+         cluster_row = TRUE,
+         cluster_cols = TRUE,
+         show_rownames = FALSE,
+         fontsize = 8,
+         main = "Heat Map of 10 Genes",
+         annotation_row = annotationData,
+         annotation_colors = annotationColors,
+         color = colorRampPalette(RColorBrewer::brewer.pal(9, "RdYlBu"))(100),
+         border_color = NA)  # This line removes the gray border
+
 ```
 
 
