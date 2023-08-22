@@ -85,8 +85,8 @@ subset$charlson_binary <- subset$charlson_score > 5 # make a new column that has
 boxplot <- ggplot(subset, aes(x = gene_expression_data, y = charlson_binary, color = mechanical_ventilation)) + #create a boxplot of gene expression, charlson score, and mechanical ventilation
   geom_boxplot(position = position_dodge(width = 1.0)) +
   geom_jitter() +
-  labs(title = expression(paste(italic("CLEC3B"), "Gene Expression, Charlson Score, and Mechanical Ventilation")), x = expression(paste(italic("CLEC3B"), " Gene Expression"), y = "Frequency"), y = "Charlson Binary") + 
-  theme(plot.title = element_text(colour = "orangered", face = "bold", hjust = 0.18, vjust = -2)) + # for the plot title
+  labs(title = expression(paste(italic("CLEC3B"), " Gene Expression, Charlson Score, and Mechanical Ventilation")), x = expression(paste(italic("CLEC3B"), " Gene Expression"), y = "Frequency"), y = "Charlson Binary") + 
+  theme(plot.title = element_text(colour = "blue", face = "bold", hjust = 0.18, vjust = -2, size=10)) + # for the plot title
   scale_fill_manual(labels=c("<5", ">5")) +
   coord_flip() + # gene expression should actually be on the y axis
   scale_y_discrete(labels=c("FALSE" = "Less than 5", "TRUE" = "More than 5\n(Extreme)")) # name the x axis by ><5
@@ -176,7 +176,7 @@ make3plots <- function(df, genes, contvar, list2catvars){
       geom_boxplot(position = position_dodge(width = 1.0)) + # use dodge (as requested)
       geom_jitter() + # use jitter (as requested)
       labs(title = substitute(paste(italic(gene), " Gene Expression with ", titlestring)), x = "Gene Expression", y = catvar1) + # add x and y labels
-      theme(plot.title = element_text(colour = "orangered", hjust = 0.1, vjust = -1, size = 11)) + # title
+      theme(plot.title = element_text(colour = "purple", hjust = 0.1, vjust = -1, size = 11)) + # title
       scale_color_discrete(catvar2) + # make the legend title nice
       coord_flip() # gene expression should go on the y axis
     
@@ -204,5 +204,122 @@ Generate a table of summary statistics for all the covariates you looked at and 
   o	Tables should report mean (sd) or median [IQR] for continuous variables
   o	Tables should be cleanly formatted in LaTeX with a caption and referenced in the text using the table number as discussed in class
 
+-------- select columns of interest: --------
+gene: CLEC3B
+continuous: gene expression, ventilator.free_days, age
+categorical: charlson binary, mechanical ventilation, sex
+
+```{r}
+install.packages("kableExtra") # we will work with the kableExtra package
+```
+
+Code adapted from class: https://canvas.dartmouth.edu/courses/59947
+
+```{r}
+# since we're working with age, I don't want the unknown values in there, otherwise I can't calculate the mean and sd
+
+#age vector without unknowns
+age_vector <- subset$age
+age_vector <- age_vector[age_vector != "unknown"]
+age_vector <- as.numeric(age_vector)
+#calc its mean
+mean_age <- mean(age_vector, na.rm = TRUE)
+
+#replace all unknowns with mean
+subset$age[subset$age == "unknown"] <- mean_age
+subset$age[subset$age == " >89"] <- mean_age
+subset$age <- as.numeric(subset$age)
+subset$age
+
+# we also don't want any unknowns in the sex catagory either
+#replace all unknowns with female half the time
+subset$sex <- trimws(subset$sex) # trimws gets rid of the white spaces so 
+unknown_indices <- which(subset$sex == "unknown")
+replacement_values <- sample(c("male", "female"), size = length(unknown_indices), replace = TRUE)
+subset$sex[unknown_indices] <- replacement_values
+subset$sex
+```
+
+```{r}
+library(kableExtra)
+
+buildTableOne <- function(df, threecat, threecont, gene) {
+  # Define an empty table
+  table <- matrix(nrow = 0, ncol = 2)
+  # Keep track of rows to indent
+  indentRows <- c()
+  
+  for (cat in threecat) {
+    # Define new row for overall variable
+    newRow <- c(paste0('**', cat, '** n (%)'), '')
+    # Add row to data frame
+    table <- rbind(table, newRow)
+    
+    # Loop through levels of variable
+    for (level in unique(df[[cat]])) {
+      # Calculate n and perc
+      n <- sum(df[[cat]] == level)
+      perc <- round(n / nrow(df) * 100, digits = 2)
+        
+      # Combine values
+      value <- paste0(n, ' (', perc, '%)')
+      
+      # Define new row
+      newRow <- c(level, value)
+      # Add row to data frame
+      table <- rbind(table, newRow)
+      # Add index to indented rows
+      indentRows <- c(indentRows, nrow(table))
+    }
+    
+  }
+  
+  for (cont in threecont){
+    x <- df[[cont]]
+    mean <- round(mean(x), 2)
+    sd <- round(sd(x), 2)
+    # Combine values
+    value <- paste0(mean, ' (', sd, ')')
+      
+    # Define new row
+    if (cont == "gene_expression_data"){
+      newRow <- c(paste0('**', gene, ' Expression Data** Mean (sd)'), value)}
+    else {newRow <- c(paste0('**', cont, '** Mean (sd)'), value)}
+      
+    # Add row to data frame
+    table <- rbind(table, newRow)
+  }
+  
+  # define sample size for heading
+  sampleSize <- paste("n =", nrow(df))
+  
+  # print table w labels/titles
+  kable(table, caption = 'Table',
+        col.names = c("Variable", sampleSize),
+        align = c('l', 'r'), escape = FALSE, row.names = FALSE) %>%
+    kable_styling() %>%
+    column_spec(1, bold = TRUE) %>%
+    add_indent(position = indentRows)
+}
+
+# Call the function with appropriate arguments
+buildTableOne(subset, c("charlson_binary", "mechanical_ventilation", "sex"), c("hospital.free_days_post_45_day_followup", "ventilator.free_days", "age", "gene_expression_data"), "CLEC3B")
+
+```
+
+Going through the documentation for ggplot2, generate a plot type that we did not previously discuss in class that describes your data in a new and unique way
+
+I will make a violin plot since we haven't made one in class yet
+
+```{r}
+violin_plot <- ggplot(subset, aes(x = gene_expression_data, y = charlson_binary, fill = mechanical_ventilation)) + # pick variables to go in the plot
+  geom_violin() + # make it a violin plot
+  labs(title="CLEC3B Gene Expression vs. Charlson Binary", x="Gene Expression", y="Charlson Binary", fill = "Mechnical Ventilation") + # labels
+  scale_y_discrete(breaks = c(FALSE, TRUE), labels = c("<5", ">5")) + # I want the values to be reflected in the text
+  scale_fill_manual(values = c("blue", "orange")) + # colors for the mechanical ventilation
+  theme_minimal() # theme
+
+violin_plot
+```
 
 
